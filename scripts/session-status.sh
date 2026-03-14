@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # session-status.sh
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 # Show status of all tmux sessions with git info.
 # Useful as a quick dashboard to see what's going on across projects.
 #

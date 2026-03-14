@@ -10,7 +10,7 @@ Dillon's tmux configuration, optimized for remote development from a BOOX Note A
 - **Connection**: SSH from BOOX tablet → MacBook, then `tmux attach`
 - **Primary workspace**: `~/src/github.com/dillonkearns/` (~93 repositories)
 - **tmux version**: 3.6a
-- **Existing config**: `~/.tmux.conf` (this repo will manage it)
+- **Config**: `~/.tmux.conf` symlinked from this repo
 
 ## Core Principles
 
@@ -24,46 +24,93 @@ Dillon's tmux configuration, optimized for remote development from a BOOX Note A
 
 ### Daily flow
 1. SSH into MacBook from BOOX tablet
-2. Attach to tmux (or start new session)
-3. Fuzzy-find a project → opens/attaches a named session in that repo
+2. `tmux attach` (or `tmux new`)
+3. `C-Space f` to fuzzy-find a project → opens/attaches a named session
 4. Run Claude Code in that session
-5. Switch between project sessions as needed
-6. Check diffs, commit status across projects
+5. `C-Space j/k` to cycle between project sessions
+6. `C-Space g` for lazygit, `C-Space h` for GitHub status, `C-Space D` for dashboard
 
-### Key capabilities needed
-- **Project switching**: Fuzzy-find across `~/src/github.com/dillonkearns/` repos, attach/create session
-- **Session juggling**: Quick switch between active tmux sessions (each is a project)
-- **Diff viewing**: Quick way to see git diff in current project (toggle, not permanent split)
-- **Status at a glance**: Which sessions are active, which have uncommitted changes
+### Key tools
+- **sesh** — Session manager (fuzzy-find projects, switch sessions, zoxide-ranked)
+- **lazygit** — TUI git client in a popup
+- **gh CLI** — GitHub status (CI, PRs) in a popup
+- **tmux-resurrect + continuum** — Session persistence across reboots
+
+## Claude Code Session Status (Dashboard System)
+
+A hooks-based system for tracking Claude Code session status across all projects.
+
+### How it works
+
+1. **Hooks** (in `~/.claude/settings.json`) automatically fire on every tool use and when Claude stops:
+   - `PostToolUse` → updates `.claude-status.json` with `last_active`, `last_tool`, `status: "working"`
+   - `Stop` → sets `status: "idle"`
+
+2. **Global CLAUDE.md** (in `~/.claude/CLAUDE.md`) instructs Claude Code to:
+   - Ask for the session goal at startup if not set
+   - Keep `goal` and `summary` fields updated at milestones
+   - Mark `status: "done"` when complete
+
+3. **Dashboard** (`C-Space D`) reads `.claude-status.json` from all active tmux sessions and shows a unified view.
+
+### `.claude-status.json` schema
+
+```json
+{
+  "session_id": "auto (hook)",
+  "project": "auto (hook)",
+  "goal": "set by Claude — one-line session goal",
+  "status": "working|idle|done|blocked",
+  "summary": "set by Claude — brief current status",
+  "last_tool": "auto (hook)",
+  "last_active": "auto (hook)",
+  "started_at": "auto (hook)"
+}
+```
+
+The file is globally gitignored (`~/.gitignore_global`).
+
+### Setup dependencies
+
+- Hooks configured in `~/.claude/settings.json`
+- Global prompt in `~/.claude/CLAUDE.md`
+- Scripts in this repo: `claude-status-update.sh`, `claude-status-stop.sh`, `claude-dashboard.sh`
 
 ## Goals
 
-### Immediate
-- [ ] E-ink optimized color theme (high contrast, minimal colors, readable)
-- [ ] Project fuzzy-finder (fzf-based session switcher)
-- [ ] Efficient keybindings for session/window/pane management
-- [ ] Git diff quick-view toggle
+### Done
+- [x] Project fuzzy-finder (sesh + fzf)
+- [x] Efficient keybindings (j/k session cycling, popup-based tools)
+- [x] Git diff quick-view (lazygit popup)
+- [x] GitHub CI/PR status popup
+- [x] Session persistence (resurrect + continuum)
+- [x] Claude Code session status via hooks
 
-### Stretch / Dashboard
-- [ ] Dashboard view showing all active sessions with status
-- [ ] Per-project goals tracking (what am I trying to accomplish in each repo?)
-- [ ] Claude Code session status — needs a clean data model, not process scraping. Open question: what's the right way to get structured status from Claude Code sessions? Could Claude Code itself write status to a known location? Is there a hook or API?
-- [ ] Uncommitted changes indicator per session
-- [ ] A way to list and prioritize concrete goals across projects
+### In Progress
+- [ ] E-ink optimized color theme (palette-adaptive, needs testing on BOOX)
+- [ ] Dashboard refinement (richer display, goal tracking)
 
-**Design constraint**: The dashboard should be built on a clean data model, not by scraping terminal output or guessing process state. Worth exploring whether Claude Code hooks, a status file convention, or some other structured approach could provide reliable session status.
+### Stretch
+- [ ] Per-project goals tracking integrated into dashboard
+- [ ] tmux-fingers for hint-based text copying
+- [ ] Cross-project status aggregation
 
 ## File Structure
 
 ```
 tmux-config/
-├── CLAUDE.md              # This file — project context and goals
-├── tmux.conf              # Main tmux config (symlinked to ~/.tmux.conf)
-├── scripts/
-│   ├── project-switcher.sh    # fzf project finder + session creator
-│   └── session-status.sh      # Show status of all sessions
-├── KEYBINDINGS.md         # Quick reference for keybindings
-└── GOALS.md               # Active project goals and priorities
+├── CLAUDE.md                          # This file — project context and goals
+├── GOALS.md                           # Active project goals and priorities
+├── KEYBINDINGS.md                     # Quick reference for keybindings
+├── tmux.conf                          # Main tmux config (symlinked to ~/.tmux.conf)
+└── scripts/
+    ├── claude-dashboard.sh            # Dashboard: status across all sessions
+    ├── claude-status-update.sh        # Hook: update status on tool use
+    ├── claude-status-stop.sh          # Hook: mark idle when Claude stops
+    ├── gh-status.sh                   # GitHub CI/PR status popup
+    ├── project-switcher.sh            # Legacy fzf project finder (replaced by sesh)
+    ├── session-picker.sh              # Legacy fzf session picker (replaced by sesh)
+    └── session-status.sh              # Show git status of all sessions
 ```
 
 ## Conventions
@@ -72,3 +119,4 @@ tmux-config/
 - Scripts go in `scripts/` and should be POSIX-friendly where possible
 - Prefix key is `C-Space` (Ctrl+Space)
 - All custom bindings documented in `KEYBINDINGS.md`
+- `.claude-status.json` files are globally gitignored — never commit them

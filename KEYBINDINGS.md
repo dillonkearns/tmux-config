@@ -51,6 +51,12 @@ Quick reference for the keybindings in this config. `Prefix` = `C-Space` (Ctrl+S
 | `Prefix + g` | Open **lazygit** in a popup window (press `q` to close) |
 | `Prefix + h` | **GitHub status** popup — CI runs, PR status, working tree |
 
+## Dashboard
+
+| Keys | Action |
+|------|--------|
+| `Prefix + D` | **Claude Code dashboard** — status of all sessions |
+
 ## Session Persistence (tmux-resurrect)
 
 | Keys | Action |

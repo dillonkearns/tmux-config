@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # session-picker.sh
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 # Fuzzy-find active tmux sessions with context (window count, path, git branch).
 # Replaces the built-in choose-tree (Prefix + s).
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # project-switcher.sh
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 # Fuzzy-find a project in ~/src/github.com/dillonkearns/ and open/switch to
 # a tmux session named after it.
 #
