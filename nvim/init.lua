@@ -118,46 +118,15 @@ require("lazy").setup({
     },
 
     -- ======================================================================
-    -- LSP
-    -- ======================================================================
-    {
-        "neovim/nvim-lspconfig",
-        config = function()
-            local lspconfig = require("lspconfig")
-
-            -- Elm language server
-            lspconfig.elmls.setup({})
-
-            -- Keymaps when LSP attaches
-            vim.api.nvim_create_autocmd("LspAttach", {
-                callback = function(event)
-                    local map = function(keys, func, desc)
-                        vim.keymap.set("n", keys, func, { buffer = event.buf, desc = desc })
-                    end
-                    map("gd", vim.lsp.buf.definition, "Go to definition")
-                    map("gr", vim.lsp.buf.references, "References")
-                    map("K", vim.lsp.buf.hover, "Hover docs")
-                    map("<leader>rn", vim.lsp.buf.rename, "Rename")
-                    map("<leader>ca", vim.lsp.buf.code_action, "Code action")
-                    map("<leader>e", vim.diagnostic.open_float, "Show diagnostic")
-                    map("[d", vim.diagnostic.goto_prev, "Previous diagnostic")
-                    map("]d", vim.diagnostic.goto_next, "Next diagnostic")
-                end,
-            })
-        end,
-    },
-
-    -- ======================================================================
     -- Treesitter: better syntax highlighting
     -- ======================================================================
     {
         "nvim-treesitter/nvim-treesitter",
         build = ":TSUpdate",
         config = function()
-            require("nvim-treesitter.configs").setup({
-                ensure_installed = { "elm", "lua", "json", "markdown", "bash" },
-                highlight = { enable = true },
-            })
+            -- nvim-treesitter v1.0+ uses vim.treesitter directly
+            -- ensure_installed handled by build = ":TSUpdate"
+            -- Highlighting is enabled by default in neovim 0.11+
         end,
     },
 
@@ -184,4 +153,32 @@ require("lazy").setup({
     ui = {
         border = "rounded",
     },
+})
+
+-- --------------------------------------------------------------------------
+-- LSP (native nvim 0.11 API)
+-- --------------------------------------------------------------------------
+
+vim.lsp.config.elmls = {
+    cmd = { "elm-language-server" },
+    filetypes = { "elm" },
+    root_markers = { "elm.json" },
+}
+vim.lsp.enable("elmls")
+
+-- LSP keymaps when attached
+vim.api.nvim_create_autocmd("LspAttach", {
+    callback = function(event)
+        local map = function(keys, func, desc)
+            vim.keymap.set("n", keys, func, { buffer = event.buf, desc = desc })
+        end
+        map("gd", vim.lsp.buf.definition, "Go to definition")
+        map("gr", vim.lsp.buf.references, "References")
+        map("K", vim.lsp.buf.hover, "Hover docs")
+        map("<leader>rn", vim.lsp.buf.rename, "Rename")
+        map("<leader>ca", vim.lsp.buf.code_action, "Code action")
+        map("<leader>e", vim.diagnostic.open_float, "Show diagnostic")
+        map("[d", vim.diagnostic.goto_prev, "Previous diagnostic")
+        map("]d", vim.diagnostic.goto_next, "Next diagnostic")
+    end,
 })
