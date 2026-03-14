@@ -23,4 +23,8 @@ if [ -f "$STATUS_FILE" ]; then
         "$STATUS_FILE" > "${STATUS_FILE}.tmp" && mv "${STATUS_FILE}.tmp" "$STATUS_FILE"
 fi
 
+# Refresh status bar and dashboard cache
+tmux refresh-client -S 2>/dev/null
+"$(dirname "$0")/claude-dashboard-render.sh" &
+
 exit 0

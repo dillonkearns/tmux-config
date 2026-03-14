@@ -55,7 +55,8 @@ Quick reference for the keybindings in this config. `Prefix` = `C-Space` (Ctrl+S
 
 | Keys | Action |
 |------|--------|
-| `Prefix + D` | **Claude Code dashboard** — status of all sessions |
+| `Prefix + Space` | **Claude Code dashboard** — status of all sessions |
+| `Prefix + D` | **Claude Code dashboard** — same as above |
 
 ## Session Persistence (tmux-resurrect)
 
