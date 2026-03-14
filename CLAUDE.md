@@ -78,18 +78,43 @@ A hooks-based system for tracking Claude Code session status across all projects
   "summary": "set by Claude — brief current status",
   "last_tool": "auto (hook)",
   "last_active": "auto (hook)",
-  "started_at": "auto (hook)"
+  "started_at": "auto (hook)",
+  "git_dirty": "auto (hook) — number of uncommitted changes",
+  "git_branch": "auto (hook) — current branch name"
 }
 ```
 
 The file is globally gitignored (`~/.gitignore_global`).
 
+### Data freshness strategy
+
+**Design principles:**
+- **Push over pull** — get notified when things change rather than polling. Hooks are instant and free.
+- **Piggyback expensive checks** — git status (~20ms) rides along with hook writes that are already happening async. No separate process needed.
+- **Per-repo locality** — each repo has its own `.claude-status.json`. Multiple agents writing to separate files avoids race conditions. A single shared file would invite clobbering.
+- **Stale-while-revalidate** — show cached data immediately, refresh in background. Dashboard opens instantly from cache, re-renders for next time.
+- **Status bar must be <200ms** — reads only cached JSON, never runs git. This is non-negotiable for responsiveness.
+
+**How data flows:**
+
+| Trigger | What updates | Latency |
+|---------|-------------|---------|
+| Claude tool use (PostToolUse hook) | `.claude-status.json` with status + git dirty/branch | Instant (async) |
+| Claude stops (Stop hook) | `.claude-status.json` idle + git dirty/branch | Instant (async) |
+| Session switch (tmux hook) | Status bar refresh | Instant |
+| Status bar render (every 30s) | Reads cached JSON + kicks off background dashboard render | <200ms |
+| Dashboard render (background) | Full git checks, writes `~/.cache/claude-dashboard.cache` | ~2s, runs in background |
+| Dashboard open (C-Space Space) | Reads cache, background refresh for next time | Instant |
+
+**What's NOT push-based (and the fallback):**
+- Manual git changes outside Claude (commits in lazygit, manual edits) — caught by background render every 30s. Acceptable tradeoff.
+
 ### Performance decisions
 
-- **Status bar script does NO git calls** — only reads cached `.claude-status.json` files. This keeps it under 200ms. Heavy git checks (branch, dirty status, ahead/behind) happen only in the background dashboard render.
-- **Dashboard is pre-rendered to `~/.cache/claude-dashboard.cache`** — opening the dashboard reads the cache instantly. The cache is rebuilt by: hooks (on every Claude action), status bar (every 30s), and dashboard open (background refresh).
-- **`client-session-changed` hook** triggers immediate status bar refresh when switching sessions, so the active session indicator updates instantly.
 - **Avoid `flock`** — not available on macOS. Use write-to-variable + redirect instead of tmp file + mv for atomic-ish JSON updates.
+- **PID-unique temp files** — dashboard render uses `$CACHE.tmp.$$` to prevent concurrent renders from clobbering each other.
+- **Pidfile guard** — only one dashboard render runs at a time; concurrent invocations skip.
+- **No git calls in status bar** — ever. This is the #1 performance rule.
 
 ### Setup dependencies
 
