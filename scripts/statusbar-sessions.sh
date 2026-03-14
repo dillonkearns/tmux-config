@@ -1,43 +1,38 @@
 #!/bin/bash
 export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 
-# Compact tmux status bar: numbered icon per session.
-# ● working (green)  ○ idle (dim)  ◆ review (magenta, idle+uncommitted)
-# ✓ done (cyan)  ✗ blocked (red)
+# Fast status bar: reads only cached .claude-status.json, no git calls.
+# Git status is updated by the dashboard render (every 30s / on hooks).
+
+current_session=$(tmux display-message -p '#S' 2>/dev/null)
 
 i=1
 for session_name in $(tmux list-sessions -F '#{session_name}' 2>/dev/null); do
     path=$(tmux display-message -t "$session_name" -p '#{pane_current_path}' 2>/dev/null)
-    [ -z "$path" ] && continue
+    [ -z "$path" ] && { i=$((i + 1)); continue; }
     dir=$(git -C "$path" rev-parse --show-toplevel 2>/dev/null || echo "$path")
     sf="$dir/.claude-status.json"
 
     status="-"
-    has_changes=false
-
     if [ -f "$sf" ]; then
         status=$(jq -r '.status // "-"' "$sf" 2>/dev/null)
     fi
 
-    if git -C "$dir" rev-parse --git-dir >/dev/null 2>&1; then
-        [ -n "$(git -C "$dir" status --porcelain 2>/dev/null)" ] && has_changes=true
-    fi
+    case "$status" in
+        working) icon="⠿"; color="colour208,bold" ;;
+        idle)    icon="●"; color="colour245" ;;
+        done)    icon="✓"; color="colour6" ;;
+        blocked) icon="✗"; color="colour1" ;;
+        *)       icon="●"; color="colour245" ;;
+    esac
 
-    if [ "$status" = "idle" ] && [ "$has_changes" = true ]; then
-        icon="◆"; color="colour3"   # yellow = review
+    if [ "$session_name" = "$current_session" ]; then
+        printf "#[fg=%s]%s#[default]#[bg=colour3,fg=colour0,bold] %d #[default] " "$color" "$icon" "$i"
     else
-        case "$status" in
-            working) icon="⠿"; color="colour208,bold" ;;  # bright orange braille
-            idle)    icon="●"; color="colour245" ;;     # gray filled
-            done)    icon="✓"; color="colour6" ;;    # cyan
-            blocked) icon="✗"; color="colour1" ;;    # red
-            *)       icon="●"; color="colour245" ;;    # gray fallback
-        esac
+        printf "#[fg=%s]%s#[default]%d " "$color" "$icon" "$i"
     fi
-
-    printf "#[fg=%s]%s#[default]%d " "$color" "$icon" "$i"
     i=$((i + 1))
 done
 
-# Rebuild dashboard cache in background (keeps git status fresh every 30s)
-"$(dirname "$0")/claude-dashboard-render.sh" &
+# Rebuild dashboard cache in background (this does the slow git checks)
+"$(dirname "$0")/claude-dashboard-render.sh" >/dev/null 2>&1 &
