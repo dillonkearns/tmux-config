@@ -1,30 +1,25 @@
 #!/usr/bin/env bash
-# claude-status-stop.sh
-export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 # Called by Claude Code Stop hook.
-# Marks the session as idle in .claude-status.json.
 
 INPUT=$(cat)
-CWD=$(echo "$INPUT" | jq -r '.cwd // empty')
+CWD=$(echo "$INPUT" | jq -r '.cwd // empty' 2>/dev/null)
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-if [ -n "$CWD" ]; then
-    PROJECT_DIR=$(git -C "$CWD" rev-parse --show-toplevel 2>/dev/null || echo "$CWD")
-else
-    exit 0
-fi
+[ -z "$CWD" ] && exit 0
 
+PROJECT_DIR=$(git -C "$CWD" rev-parse --show-toplevel 2>/dev/null || echo "$CWD")
 STATUS_FILE="$PROJECT_DIR/.claude-status.json"
 
 if [ -f "$STATUS_FILE" ]; then
-    jq \
+    result=$(jq \
         --arg timestamp "$TIMESTAMP" \
         '.status = "idle" | .last_active = $timestamp' \
-        "$STATUS_FILE" > "${STATUS_FILE}.tmp" && mv "${STATUS_FILE}.tmp" "$STATUS_FILE"
+        "$STATUS_FILE" 2>/dev/null)
+    [ -n "$result" ] && echo "$result" > "$STATUS_FILE"
 fi
 
-# Refresh status bar and dashboard cache
 tmux refresh-client -S 2>/dev/null
-"$(dirname "$0")/claude-dashboard-render.sh" &
+"$(dirname "$0")/claude-dashboard-render.sh" >/dev/null 2>&1 &
 
 exit 0

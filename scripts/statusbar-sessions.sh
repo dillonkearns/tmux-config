@@ -24,14 +24,14 @@ for session_name in $(tmux list-sessions -F '#{session_name}' 2>/dev/null); do
     fi
 
     if [ "$status" = "idle" ] && [ "$has_changes" = true ]; then
-        icon="◆"; color="colour5"   # magenta = review
+        icon="◆"; color="colour3"   # yellow = review
     else
         case "$status" in
-            working) icon="●"; color="colour2" ;;  # green
-            idle)    icon="○"; color="colour8" ;;  # dim
-            done)    icon="✓"; color="colour6" ;;  # cyan
-            blocked) icon="✗"; color="colour1" ;;  # red
-            *)       icon="○"; color="colour8" ;;  # dim fallback
+            working) icon="⠿"; color="colour208,bold" ;;  # bright orange braille
+            idle)    icon="●"; color="colour245" ;;     # gray filled
+            done)    icon="✓"; color="colour6" ;;    # cyan
+            blocked) icon="✗"; color="colour1" ;;    # red
+            *)       icon="●"; color="colour245" ;;    # gray fallback
         esac
     fi
 

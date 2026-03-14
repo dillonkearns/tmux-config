@@ -16,11 +16,16 @@ YELLOW='\033[33m'
 CYAN='\033[36m'
 MAGENTA='\033[35m'
 WHITE='\033[97m'
+ORANGE='\033[1;38;5;208m'
+GRAY='\033[38;5;245m'
+REVERSE='\033[7m'
 BG_GREEN='\033[42;30m'
 BG_RED='\033[41;37m'
 BG_CYAN='\033[46;30m'
 BG_MAGENTA='\033[45;37m'
+BG_YELLOW='\033[43;30m'
 BG_DIM='\033[100;37m'
+BG_ORANGE='\033[48;5;208;30m'
 
 {
     printf "\n"
@@ -63,18 +68,18 @@ BG_DIM='\033[100;37m'
         [ -z "$git_icons" ]    && git_icons="${GREEN}✔${RESET}"
 
         if [ "$status" = "idle" ] && [ "$has_changes" = true ]; then
-            badge="${BG_MAGENTA} ◆ REVIEW ${RESET}"
+            badge="${BG_YELLOW} ◆ REVIEW ${RESET}"
         else
             case "$status" in
-                working) badge="${BG_GREEN} ● WORKING ${RESET}" ;;
-                idle)    badge="${BG_DIM} ○ IDLE ${RESET}" ;;
+                working) badge="${BG_ORANGE} ⠿ WORKING ${RESET}" ;;
+                idle)    badge="${BG_DIM} ● IDLE ${RESET}" ;;
                 done)    badge="${BG_CYAN} ✓ DONE ${RESET}" ;;
                 blocked) badge="${BG_RED} ✗ BLOCKED ${RESET}" ;;
-                *)       badge="${BG_DIM} ○ ${RESET}" ;;
+                *)       badge="${BG_DIM} ● ${RESET}" ;;
             esac
         fi
 
-        printf "  ${BOLD}${YELLOW}%d${RESET}  ${BOLD}%s${RESET}  %b  %b" "$i" "$session_name" "$badge" "$git_icons"
+        printf "  ${REVERSE} %d ${RESET}  ${BOLD}%s${RESET}  %b  %b" "$i" "$session_name" "$badge" "$git_icons"
         [ -n "$branch" ] && printf "  ${MAGENTA}%s${RESET}" "$branch"
         printf "\n"
 
@@ -88,4 +93,4 @@ BG_DIM='\033[100;37m'
         printf "\n"
         i=$((i + 1))
     done
-} > "$CACHE.tmp" && mv "$CACHE.tmp" "$CACHE"
+} > "$CACHE.tmp" 2>/dev/null && mv "$CACHE.tmp" "$CACHE" 2>/dev/null
