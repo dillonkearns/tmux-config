@@ -79,7 +79,10 @@ BG_ORANGE='\033[48;5;208;30m'
             esac
         fi
 
-        printf "  ${REVERSE} %d ${RESET}  ${BOLD}%s${RESET}  %b  %b" "$i" "$session_name" "$badge" "$git_icons"
+        emoji=""
+        [ -f "$dir/.session-icon" ] && emoji="$(cat "$dir/.session-icon" 2>/dev/null) "
+
+        printf "  ${REVERSE} %d ${RESET}  %s${BOLD}%s${RESET}  %b  %b" "$i" "$emoji" "$session_name" "$badge" "$git_icons"
         [ -n "$branch" ] && printf "  ${MAGENTA}%s${RESET}" "$branch"
         printf "\n"
 

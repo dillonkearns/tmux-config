@@ -26,10 +26,14 @@ for session_name in $(tmux list-sessions -F '#{session_name}' 2>/dev/null); do
         *)       icon="●"; color="colour245" ;;
     esac
 
+    # Session emoji if present
+    emoji=""
+    [ -f "$dir/.session-icon" ] && emoji=$(cat "$dir/.session-icon" 2>/dev/null)
+
     if [ "$session_name" = "$current_session" ]; then
-        printf "#[fg=%s]%s#[default]#[bg=colour3,fg=colour0,bold] %d #[default] " "$color" "$icon" "$i"
+        printf "#[fg=%s]%s#[default]#[bg=colour3,fg=colour0,bold] %d %s#[default] " "$color" "$icon" "$i" "$emoji"
     else
-        printf "#[fg=%s]%s#[default]%d " "$color" "$icon" "$i"
+        printf "#[fg=%s]%s#[default]%d%s " "$color" "$icon" "$i" "$emoji"
     fi
     i=$((i + 1))
 done
