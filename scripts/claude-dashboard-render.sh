@@ -5,7 +5,14 @@ export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PAT
 # Called by hooks for instant dashboard display.
 
 CACHE="$HOME/.cache/claude-dashboard.cache"
+PIDFILE="$HOME/.cache/claude-dashboard.pid"
 mkdir -p "$(dirname "$CACHE")"
+
+# Skip if another render is already running
+if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE" 2>/dev/null)" 2>/dev/null; then
+    exit 0
+fi
+echo $$ > "$PIDFILE"
 
 BOLD='\033[1m'
 DIM='\033[2m'
@@ -96,4 +103,6 @@ BG_ORANGE='\033[48;5;208;30m'
         printf "\n"
         i=$((i + 1))
     done
-} > "$CACHE.tmp" 2>/dev/null && mv "$CACHE.tmp" "$CACHE" 2>/dev/null
+} > "$CACHE.tmp.$$" 2>/dev/null && mv "$CACHE.tmp.$$" "$CACHE" 2>/dev/null
+
+rm -f "$PIDFILE"
