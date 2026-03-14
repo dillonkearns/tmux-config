@@ -54,7 +54,7 @@ selected=$(fzf \
     --no-sort \
     --layout=reverse \
     --border-label ' Claude Dashboard ' \
-    --header '  enter: switch  q: close' \
+    --header '  enter: switch to session' \
     --preview "$SCRIPT_DIR/claude-dashboard-preview.sh {}" \
     --preview-window=right:60%:wrap \
     --ansi \

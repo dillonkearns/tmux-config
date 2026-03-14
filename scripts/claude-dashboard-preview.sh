@@ -1,8 +1,6 @@
 #!/bin/bash
 export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
 
-# Full dashboard overview of ALL sessions with color.
-
 BOLD='\033[1m'
 DIM='\033[2m'
 RESET='\033[0m'
@@ -32,28 +30,41 @@ for session_name in $(tmux list-sessions -F '#{session_name}' 2>/dev/null); do
     status="-"
     goal=""
     summary=""
-    last_tool=""
     has_changes=false
 
     if [ -f "$sf" ]; then
         status=$(jq -r '.status // "-"' "$sf" 2>/dev/null)
         goal=$(jq -r '.goal // ""' "$sf" 2>/dev/null)
         summary=$(jq -r '.summary // ""' "$sf" 2>/dev/null)
-        last_tool=$(jq -r '.last_tool // ""' "$sf" 2>/dev/null)
     fi
 
-    # Git change counts
-    staged=0
-    modified=0
-    untracked=0
+    # Git status icons
+    staged=0; modified=0; untracked=0; ahead=0; behind=0
     if git -C "$dir" rev-parse --git-dir >/dev/null 2>&1; then
         staged=$(git -C "$dir" diff --cached --numstat 2>/dev/null | wc -l | tr -d ' ')
         modified=$(git -C "$dir" diff --numstat 2>/dev/null | wc -l | tr -d ' ')
         untracked=$(git -C "$dir" ls-files --others --exclude-standard 2>/dev/null | wc -l | tr -d ' ')
+        counts=$(git -C "$dir" rev-list --left-right --count HEAD...@{upstream} 2>/dev/null)
+        if [ -n "$counts" ]; then
+            ahead=$(echo "$counts" | awk '{print $1}')
+            behind=$(echo "$counts" | awk '{print $2}')
+        fi
         [ "$staged" -gt 0 ] || [ "$modified" -gt 0 ] || [ "$untracked" -gt 0 ] && has_changes=true
     fi
 
-    # Status badge — "review" when idle but has uncommitted changes
+    git_icons=""
+    [ "$staged" -gt 0 ]    && git_icons="${git_icons}${GREEN}+${RESET}"
+    [ "$modified" -gt 0 ]  && git_icons="${git_icons}${RED}~${RESET}"
+    [ "$untracked" -gt 0 ] && git_icons="${git_icons}${YELLOW}?${RESET}"
+    [ "$ahead" -gt 0 ]     && git_icons="${git_icons}${CYAN}↑${RESET}"
+    [ "$behind" -gt 0 ]    && git_icons="${git_icons}${MAGENTA}↓${RESET}"
+
+    # Clean check mark if nothing at all
+    if [ -z "$git_icons" ]; then
+        git_icons="${GREEN}✔${RESET}"
+    fi
+
+    # Status badge
     if [ "$status" = "idle" ] && [ "$has_changes" = true ]; then
         badge="${BG_MAGENTA} ◆ REVIEW ${RESET}"
     else
@@ -66,35 +77,21 @@ for session_name in $(tmux list-sessions -F '#{session_name}' 2>/dev/null); do
         esac
     fi
 
-    # Session header line
+    # Session header: name  badge  git-icons
     if [ "$session_name" = "$selected_name" ]; then
-        printf "${BOLD}${CYAN}▸ %s${RESET}  %b" "$session_name" "$badge"
+        printf "${BOLD}${CYAN}▸ %s${RESET}  %b  %b" "$session_name" "$badge" "$git_icons"
     else
-        printf "${BOLD}  %s${RESET}  %b" "$session_name" "$badge"
+        printf "${BOLD}  %s${RESET}  %b  %b" "$session_name" "$badge" "$git_icons"
     fi
     [ -n "$branch" ] && printf "  ${MAGENTA}%s${RESET}" "$branch"
     echo ""
 
-    # Goal — bold white label, bright text, indented for hierarchy
+    # Goal and summary — indented for hierarchy
     if [ -n "$goal" ]; then
         printf "      ${BOLD}${WHITE}Goal:${RESET} ${WHITE}%s${RESET}\n" "$goal"
     fi
-
-    # Summary — slightly dimmer but still readable
     if [ -n "$summary" ]; then
         printf "      ${CYAN}%s${RESET}\n" "$summary"
-    fi
-
-    # Git status — colored inline
-    git_parts=""
-    [ "$staged" -gt 0 ] && git_parts="${git_parts}${GREEN}+${staged} staged${RESET}  "
-    [ "$modified" -gt 0 ] && git_parts="${git_parts}${RED}~${modified} modified${RESET}  "
-    [ "$untracked" -gt 0 ] && git_parts="${git_parts}${YELLOW}?${untracked} untracked${RESET}  "
-
-    if [ -n "$git_parts" ]; then
-        printf "      %b\n" "$git_parts"
-    else
-        printf "      ${DIM}clean${RESET}\n"
     fi
 
     echo ""
