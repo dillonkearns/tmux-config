@@ -70,5 +70,5 @@ tmux-config/
 
 - This repo's `tmux.conf` is the source of truth. Symlink: `ln -sf ~/src/github.com/dillonkearns/tmux-config/tmux.conf ~/.tmux.conf`
 - Scripts go in `scripts/` and should be POSIX-friendly where possible
-- Prefix key is the default `C-b`
+- Prefix key is `C-Space` (Ctrl+Space)
 - All custom bindings documented in `KEYBINDINGS.md`

@@ -1,10 +1,10 @@
 # Tmux Keybindings Reference
 
-Quick reference for the keybindings in this config. `Prefix` = `C-b` (Ctrl+b, the default).
+Quick reference for the keybindings in this config. `Prefix` = `C-Space` (Ctrl+Space).
 
 ## Essential Concepts
 
-- **Prefix key**: Press `C-b` first, release, then press the next key. This is how all tmux commands start (unless bound without prefix).
+- **Prefix key**: Press `C-Space` first, release, then press the next key. This is how all tmux commands start (unless bound without prefix).
 - **Session**: A named collection of windows. We use one session per project/repo.
 - **Window**: A tab within a session. Usually one per task (e.g., Claude Code, shell, diff).
 - **Pane**: A split within a window. Useful for side-by-side views.
@@ -13,10 +13,10 @@ Quick reference for the keybindings in this config. `Prefix` = `C-b` (Ctrl+b, th
 
 | Keys | Action |
 |------|--------|
-| `Prefix + f` | **Fuzzy-find project** — find repo and open/switch to its session |
-| `Prefix + s` | List all sessions (built-in session picker) |
-| `Prefix + (` | Switch to previous session |
-| `Prefix + )` | Switch to next session |
+| `Prefix + f` | **sesh** — fuzzy-find projects & sessions (create or switch) |
+| `Prefix + s` | **sesh** — same as above (easy to remember either way) |
+| `Prefix + j` | Next session |
+| `Prefix + k` | Previous session |
 | `Prefix + $` | Rename current session |
 | `Prefix + d` | Detach from tmux (back to SSH shell) |
 | `Prefix + L` | Switch to last (most recent) session |
@@ -44,11 +44,12 @@ Quick reference for the keybindings in this config. `Prefix` = `C-b` (Ctrl+b, th
 | `Prefix + x` | Close pane (with confirmation) |
 | `Prefix + Space` | Cycle pane layouts |
 
-## Git (lazygit)
+## Git / GitHub
 
 | Keys | Action |
 |------|--------|
 | `Prefix + g` | Open **lazygit** in a popup window (press `q` to close) |
+| `Prefix + h` | **GitHub status** popup — CI runs, PR status, working tree |
 
 ## Session Persistence (tmux-resurrect)
 
