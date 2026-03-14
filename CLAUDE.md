@@ -95,6 +95,16 @@ The file is globally gitignored (`~/.gitignore_global`).
 - [ ] tmux-fingers for hint-based text copying
 - [ ] Cross-project status aggregation
 
+## Neovim
+
+Minimal config optimized for e-ink, Elm-focused. Symlinked to `~/.config/nvim/init.lua`.
+
+- **Theme**: rose-pine dawn (light, high contrast, no italics)
+- **Fuzzy finder**: Telescope (`<Space>f` files, `<Space>g` grep, `<Space>b` buffers)
+- **LSP**: elm-language-server (go-to-def, hover, rename, diagnostics)
+- **Treesitter**: Syntax highlighting for Elm, Lua, JSON, Markdown, Bash
+- **Status line**: lualine (minimal, no fancy separators)
+
 ## File Structure
 
 ```
@@ -103,6 +113,8 @@ tmux-config/
 ├── GOALS.md                           # Active project goals and priorities
 ├── KEYBINDINGS.md                     # Quick reference for keybindings
 ├── tmux.conf                          # Main tmux config (symlinked to ~/.tmux.conf)
+├── nvim/
+│   └── init.lua                       # Neovim config (symlinked to ~/.config/nvim/init.lua)
 └── scripts/
     ├── claude-dashboard.sh            # Dashboard: status across all sessions
     ├── claude-status-update.sh        # Hook: update status on tool use
