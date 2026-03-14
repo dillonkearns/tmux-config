@@ -13,12 +13,22 @@ TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 PROJECT_DIR=$(git -C "$CWD" rev-parse --show-toplevel 2>/dev/null || echo "$CWD")
 STATUS_FILE="$PROJECT_DIR/.claude-status.json"
 
+# Piggyback git status onto the hook (cheap, ~20ms)
+git_dirty=0
+git_branch=""
+if git -C "$PROJECT_DIR" rev-parse --git-dir >/dev/null 2>&1; then
+    git_dirty=$(git -C "$PROJECT_DIR" status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+    git_branch=$(git -C "$PROJECT_DIR" branch --show-current 2>/dev/null)
+fi
+
 if [ -f "$STATUS_FILE" ]; then
     result=$(jq \
         --arg session_id "$SESSION_ID" \
         --arg tool "$TOOL_NAME" \
         --arg timestamp "$TIMESTAMP" \
-        '.session_id = $session_id | .last_tool = $tool | .last_active = $timestamp | .status = "working"' \
+        --argjson git_dirty "$git_dirty" \
+        --arg git_branch "$git_branch" \
+        '.session_id = $session_id | .last_tool = $tool | .last_active = $timestamp | .status = "working" | .git_dirty = $git_dirty | .git_branch = $git_branch' \
         "$STATUS_FILE" 2>/dev/null)
     [ -n "$result" ] && echo "$result" > "$STATUS_FILE"
 else
@@ -28,7 +38,9 @@ else
         --arg project "$PROJECT_NAME" \
         --arg tool "$TOOL_NAME" \
         --arg timestamp "$TIMESTAMP" \
-        '{session_id:$session_id,project:$project,goal:null,status:"working",summary:null,last_tool:$tool,last_active:$timestamp,started_at:$timestamp}' \
+        --argjson git_dirty "$git_dirty" \
+        --arg git_branch "$git_branch" \
+        '{session_id:$session_id,project:$project,goal:null,status:"working",summary:null,last_tool:$tool,last_active:$timestamp,started_at:$timestamp,git_dirty:$git_dirty,git_branch:$git_branch}' \
         > "$STATUS_FILE" 2>/dev/null
 fi
 

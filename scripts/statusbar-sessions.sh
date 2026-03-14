@@ -14,17 +14,24 @@ for session_name in $(tmux list-sessions -F '#{session_name}' 2>/dev/null); do
     sf="$dir/.claude-status.json"
 
     status="-"
+    git_dirty=0
     if [ -f "$sf" ]; then
         status=$(jq -r '.status // "-"' "$sf" 2>/dev/null)
+        git_dirty=$(jq -r '.git_dirty // 0' "$sf" 2>/dev/null)
     fi
 
-    case "$status" in
-        working) icon="⠿"; color="colour208,bold" ;;
-        idle)    icon="●"; color="colour245" ;;
-        done)    icon="✓"; color="colour6" ;;
-        blocked) icon="✗"; color="colour1" ;;
-        *)       icon="●"; color="colour245" ;;
-    esac
+    # Review: idle + dirty git (from cached data, no git calls)
+    if [ "$status" = "idle" ] && [ "$git_dirty" -gt 0 ] 2>/dev/null; then
+        icon="◆"; color="colour3"
+    else
+        case "$status" in
+            working) icon="⠿"; color="colour208,bold" ;;
+            idle)    icon="●"; color="colour245" ;;
+            done)    icon="✓"; color="colour6" ;;
+            blocked) icon="✗"; color="colour1" ;;
+            *)       icon="●"; color="colour245" ;;
+        esac
+    fi
 
     # Session emoji if present
     emoji=""
