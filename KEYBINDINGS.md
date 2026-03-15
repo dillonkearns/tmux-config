@@ -15,11 +15,13 @@ Quick reference for the keybindings in this config. `Prefix` = `C-Space` (Ctrl+S
 |------|--------|
 | `Prefix + f` | **sesh** — fuzzy-find projects & sessions (create or switch) |
 | `Prefix + s` | **sesh** — same as above (easy to remember either way) |
+| `Prefix + 1-9` | **Jump to session by number** (matches status bar) |
 | `Prefix + j` | Next session |
 | `Prefix + k` | Previous session |
 | `Prefix + $` | Rename current session |
 | `Prefix + d` | Detach from tmux (back to SSH shell) |
 | `Prefix + L` | Switch to last (most recent) session |
+| `Prefix + X` | **Kill current session** (switches to next session first) |
 
 ## Windows (tabs within a session)
 
