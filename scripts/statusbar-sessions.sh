@@ -25,11 +25,12 @@ for session_name in $(tmux list-sessions -F '#{session_name}' 2>/dev/null); do
         icon="◆"; color="colour3"
     else
         case "$status" in
-            working) icon="⠿"; color="colour208,bold" ;;
-            idle)    icon="●"; color="colour245" ;;
-            done)    icon="✓"; color="colour6" ;;
-            blocked) icon="✗"; color="colour1" ;;
-            *)       icon="●"; color="colour245" ;;
+            working)   icon="⠿"; color="colour208,bold" ;;
+            attention) icon="❗"; color="colour1,bold" ;;
+            idle)      icon="●"; color="colour245" ;;
+            done)      icon="✓"; color="colour6" ;;
+            blocked)   icon="✗"; color="colour1" ;;
+            *)         icon="●"; color="colour245" ;;
         esac
     fi
 

@@ -78,8 +78,9 @@ BG_ORANGE='\033[48;5;208;30m'
             badge="${BG_YELLOW} ◆ REVIEW ${RESET}"
         else
             case "$status" in
-                working) badge="${BG_ORANGE} ⠿ WORKING ${RESET}" ;;
-                idle)    badge="${BG_DIM} ● IDLE ${RESET}" ;;
+                working)   badge="${BG_ORANGE} ⠿ WORKING ${RESET}" ;;
+                attention) badge="${BG_RED} ❗ATTENTION ${RESET}" ;;
+                idle)      badge="${BG_DIM} ● IDLE ${RESET}" ;;
                 done)    badge="${BG_CYAN} ✓ DONE ${RESET}" ;;
                 blocked) badge="${BG_RED} ✗ BLOCKED ${RESET}" ;;
                 *)       badge="${BG_DIM} ● ${RESET}" ;;
