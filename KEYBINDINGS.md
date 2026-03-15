@@ -53,6 +53,12 @@ Quick reference for the keybindings in this config. `Prefix` = `C-Space` (Ctrl+S
 | `Prefix + g` | Open **lazygit** in a popup window (press `q` to close) |
 | `Prefix + h` | **GitHub status** popup — CI runs, PR status, working tree |
 
+## Supervisor
+
+| Keys | Action |
+|------|--------|
+| `Prefix + o` | **Supervisor** — jump to supervisor Claude session (creates if needed) |
+
 ## Dashboard
 
 | Keys | Action |
@@ -66,6 +72,12 @@ Quick reference for the keybindings in this config. `Prefix` = `C-Space` (Ctrl+S
 |------|--------|
 | `Prefix + C-s` | **Save** all sessions (persists across reboot) |
 | `Prefix + C-r` | **Restore** saved sessions |
+
+## Text Grabbing (tmux-fingers)
+
+| Keys | Action |
+|------|--------|
+| `Prefix + F` | **Fingers mode** — highlights paths, URLs, SHAs, commands on screen. Press the hint letter to copy. Shift+letter to paste. |
 
 ## Copy Mode (scrolling & selecting)
 
