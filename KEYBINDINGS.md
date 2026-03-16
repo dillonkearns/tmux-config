@@ -4,24 +4,32 @@ Quick reference for the keybindings in this config. `Prefix` = `C-Space` (Ctrl+S
 
 ## Essential Concepts
 
-- **Prefix key**: Press `C-Space` first, release, then press the next key. This is how all tmux commands start (unless bound without prefix).
-- **Session**: A named collection of windows. We use one session per project/repo.
-- **Window**: A tab within a session. Usually one per task (e.g., Claude Code, shell, diff).
-- **Pane**: A split within a window. Useful for side-by-side views.
+- **Prefix key**: Press `C-Space` first, release, then press the next key.
+- **Session**: A named tmux session. One per project/repo. Numbered 1-9 in the status bar.
+- **Window**: A tab within a session. Use `n`/`p` to cycle, or create with `c`.
+- **Pane**: A split within a window. Use `z` to zoom, `|` and `-` to split.
 
-## Sessions (project-level)
+## Sessions (the main navigation)
 
 | Keys | Action |
 |------|--------|
-| `Prefix + f` | **sesh** — fuzzy-find projects & sessions (create or switch) |
-| `Prefix + s` | **sesh** — same as above (easy to remember either way) |
+| `Prefix + f` or `s` | **Fuzzy-find** projects & sessions (sesh — creates new or switches) |
 | `Prefix + 1-9` | **Jump to session by number** (matches status bar) |
+| `Prefix + 0` or `o` | **Supervisor** — toggle to/from the supervisor Claude session |
 | `Prefix + j` | Next session |
 | `Prefix + k` | Previous session |
-| `Prefix + $` | Rename current session |
-| `Prefix + d` | Detach from tmux (back to SSH shell) |
 | `Prefix + L` | Switch to last (most recent) session |
-| `Prefix + X` | **Kill current session** (switches to next session first) |
+| `Prefix + X` | **Kill current session** (switches to next first) |
+| `Prefix + d` | Detach from tmux (back to SSH shell) |
+| `Prefix + $` | Rename current session |
+
+## Dashboard & Status
+
+| Keys | Action |
+|------|--------|
+| `Prefix + Space` or `D` | **Claude Code dashboard** — fullscreen, press 1-9 to jump |
+| `Prefix + g` | **lazygit** popup (press `q` to close) |
+| `Prefix + h` | **GitHub status** — CI runs with live watching, PR status |
 
 ## Windows (tabs within a session)
 
@@ -30,7 +38,6 @@ Quick reference for the keybindings in this config. `Prefix` = `C-Space` (Ctrl+S
 | `Prefix + c` | Create new window |
 | `Prefix + n` | Next window |
 | `Prefix + p` | Previous window |
-| `Prefix + 1-9` | Jump to window by number |
 | `Prefix + ,` | Rename window |
 | `Prefix + &` | Close window (with confirmation) |
 | `Prefix + l` | Toggle to last active window |
@@ -44,64 +51,51 @@ Quick reference for the keybindings in this config. `Prefix` = `C-Space` (Ctrl+S
 | `Prefix + arrow keys` | Move between panes |
 | `Prefix + z` | **Toggle pane zoom** (fullscreen a pane, press again to restore) |
 | `Prefix + x` | Close pane (with confirmation) |
-| `Prefix + Space` | Cycle pane layouts |
 
-## Git / GitHub
-
-| Keys | Action |
-|------|--------|
-| `Prefix + g` | Open **lazygit** in a popup window (press `q` to close) |
-| `Prefix + h` | **GitHub status** popup — CI runs, PR status, working tree |
-
-## Supervisor
+## Text & Clipboard
 
 | Keys | Action |
 |------|--------|
-| `Prefix + 0` or `Prefix + o` | **Supervisor** — jump to/from supervisor Claude session |
+| `Prefix + F` | **tmux-fingers** — hint-based text grabbing. Press letter to copy, Shift+letter to paste. |
+| `Prefix + [` | Enter copy mode (for scrolling and selecting) |
+| `v` (in copy mode) | Start selection |
+| `y` (in copy mode) | Copy selection |
+| `q` (in copy mode) | Exit copy mode |
+| `Prefix + ]` | Paste |
 
-## Dashboard
-
-| Keys | Action |
-|------|--------|
-| `Prefix + Space` | **Claude Code dashboard** — status of all sessions |
-| `Prefix + D` | **Claude Code dashboard** — same as above |
-
-## Session Persistence (tmux-resurrect)
+## Session Persistence
 
 | Keys | Action |
 |------|--------|
 | `Prefix + C-s` | **Save** all sessions (persists across reboot) |
 | `Prefix + C-r` | **Restore** saved sessions |
-
-## Text Grabbing (tmux-fingers)
-
-| Keys | Action |
-|------|--------|
-| `Prefix + F` | **Fingers mode** — highlights paths, URLs, SHAs, commands on screen. Press the hint letter to copy. Shift+letter to paste. |
-
-## Copy Mode (scrolling & selecting)
-
-| Keys | Action |
-|------|--------|
-| `Prefix + [` | Enter copy mode (for scrolling) |
-| `q` | Exit copy mode |
-| `Up/Down` or `k/j` | Scroll line by line (in copy mode) |
-| `PgUp/PgDn` | Scroll by page (in copy mode) |
-| `Space` | Start selection (in copy mode) |
-| `Enter` | Copy selection (in copy mode) |
-| `Prefix + ]` | Paste |
+| *(auto)* | Sessions auto-save every 15 minutes via continuum |
 
 ## Misc
 
 | Keys | Action |
 |------|--------|
-| `Prefix + :` | Command prompt (type tmux commands directly) |
 | `Prefix + r` | Reload tmux config |
+| `Prefix + :` | Command prompt (type tmux commands directly) |
 | `Prefix + ?` | List all keybindings |
+
+## Status Bar Legend
+
+```
+●0🔭  ⠿ 1 📖  ◆2🦞  ●3⚙️   │ 14:30
+│      │        │      │
+│      │        │      └─ gray ● = idle
+│      │        └─ yellow ◆ = review (idle + uncommitted changes)
+│      └─ orange ⠿ = Claude working
+└─ supervisor (always first)
+
+Active session number has yellow background highlight.
+```
 
 ## Tips for E-ink
 
-- Use `Prefix + z` (zoom) instead of splits when you want to focus on one thing — better on the small screen
-- `Prefix + f` (project switcher) is your main navigation — learn to love it
-- Scrolling in copy mode is more e-ink friendly than mouse scrolling (less partial redraws)
-- Keep window count low per session — you can always `Prefix + c` a new one
+- Use `Prefix + z` (zoom) instead of splits — better on the small screen
+- `Prefix + f` is your main navigation — fuzzy-find everything
+- `Prefix + 1-9` for instant session jumps (matches status bar numbers)
+- `Prefix + F` (fingers) to grab text without mouse selection
+- Scrolling in copy mode is more e-ink friendly than mouse scrolling
