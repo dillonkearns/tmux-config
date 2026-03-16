@@ -2,12 +2,34 @@
 export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 
 # Fast status bar: reads only cached .claude-status.json, no git calls.
-# Git status is updated by the dashboard render (every 30s / on hooks).
+# Supervisor session shown separately with "o" label.
 
 current_session=$(tmux display-message -p '#S' 2>/dev/null)
 
+# Supervisor first — labeled "0"
+if tmux has-session -t supervisor 2>/dev/null; then
+    sf="$HOME/src/github.com/dillonkearns/tmux-config/supervisor/.claude-status.json"
+    status="-"
+    [ -f "$sf" ] && status=$(jq -r '.status // "-"' "$sf" 2>/dev/null)
+
+    case "$status" in
+        working)   icon="⠿"; color="colour208,bold" ;;
+        attention) icon="❗"; color="colour1,bold" ;;
+        idle)      icon="●"; color="colour245" ;;
+        *)         icon="●"; color="colour245" ;;
+    esac
+
+    if [ "$current_session" = "supervisor" ]; then
+        printf "#[fg=%s]%s#[default]#[bg=colour3,fg=colour0,bold] 0 #[default]🔭 " "$color" "$icon"
+    else
+        printf "#[fg=%s]%s#[default]0🔭 " "$color" "$icon"
+    fi
+fi
+
 i=1
 for session_name in $(tmux list-sessions -F '#{session_name}' 2>/dev/null); do
+    [ "$session_name" = "supervisor" ] && continue
+
     path=$(tmux display-message -t "$session_name" -p '#{pane_current_path}' 2>/dev/null)
     [ -z "$path" ] && { i=$((i + 1)); continue; }
     dir=$(git -C "$path" rev-parse --show-toplevel 2>/dev/null || echo "$path")

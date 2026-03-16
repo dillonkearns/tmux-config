@@ -39,6 +39,7 @@ BG_ORANGE='\033[48;5;208;30m'
 
     i=1
     for session_name in $(tmux list-sessions -F '#{session_name}' 2>/dev/null); do
+        [ "$session_name" = "supervisor" ] && continue
         path=$(tmux display-message -t "$session_name" -p '#{pane_current_path}' 2>/dev/null)
         [ -z "$path" ] && continue
         dir=$(git -C "$path" rev-parse --show-toplevel 2>/dev/null || echo "$path")

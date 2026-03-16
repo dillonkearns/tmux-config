@@ -9,6 +9,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # Collect session names for number→session mapping
 sessions=()
 for s in $(tmux list-sessions -F '#{session_name}' 2>/dev/null); do
+    [ "$s" = "supervisor" ] && continue
     sessions+=("$s")
 done
 

@@ -57,7 +57,7 @@ Quick reference for the keybindings in this config. `Prefix` = `C-Space` (Ctrl+S
 
 | Keys | Action |
 |------|--------|
-| `Prefix + o` | **Supervisor** — jump to supervisor Claude session (creates if needed) |
+| `Prefix + 0` or `Prefix + o` | **Supervisor** — jump to/from supervisor Claude session |
 
 ## Dashboard
 
