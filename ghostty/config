@@ -1,5 +1,5 @@
 # Theme
-theme = Ultra Dark
+theme = warp-dark
 
 # Clean minimal UI
 macos-titlebar-style = hidden
@@ -21,7 +21,6 @@ clipboard-write = allow
 clipboard-trim-trailing-spaces = true
 
 # Readability
-font-thicken = true
 minimum-contrast = 1.1
 
 # Keybindings
