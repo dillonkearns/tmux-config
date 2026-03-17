@@ -24,4 +24,7 @@ clipboard-trim-trailing-spaces = true
 minimum-contrast = 1.1
 
 # Keybindings
+# Use a minimal custom icon (or set to hidden for dock)
+macos-icon = glass
+
 keybind = shift+enter=text:\x1b\x0d
